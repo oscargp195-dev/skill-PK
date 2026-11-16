@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.xml
+!reference/*.xml
+*.pka
+*.pkt

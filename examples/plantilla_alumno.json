@@ -1,0 +1,20 @@
+{
+  "_LEEME": "Plantilla del DISEÑO DEL ALUMNO. Todo lo rellena el alumno; el agente solo lo copia aquí. Si el enunciado no usa MN o NC, borra esa variable. Formato completo: plan_formato.json",
+  "variables": {
+    "MN": "",
+    "NC": ""
+  },
+  "redes_del_alumno": {
+    "_nota": "Solo informativo (no lo usa el script): red/prefijo -> qué segmento es, tal como lo dice el alumno"
+  },
+  "routers": {},
+  "switches": {},
+  "hosts": {},
+  "swap_to_wireless": [],
+  "access_points": {},
+  "wireless_clients": {},
+  "rename_notes": {},
+  "net_labels": [],
+  "notes": [],
+  "auto_labels": false
+}
