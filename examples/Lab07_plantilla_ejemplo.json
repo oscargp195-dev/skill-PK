@@ -1,0 +1,84 @@
+{
+  "_LEEME": "EJEMPLO generado por el agente leyendo Lab07.pka. 'RELLENA' lo escribe el alumno. 'AUTO' lo calcula el agente. Nada se escribe en el .pka hasta que el alumno rellene todos los RELLENA.",
+
+  "0_regla_de_grupos": "Se quitan los routers del grafo. Cada trozo que queda conectado (switches, APs, hosts) es un GRUPO = una LAN. Cada interfaz LAN de router da un grupo. Los enlaces serie entre routers son redes WAN aparte. Dentro de un grupo, el switch que cuelga del router es el principal y los demas dependen de el.",
+
+  "1_enunciado_detectado": {
+    "texto": "Subnetting para el AS 172.16+MN.0.0 en las redes SIN etiquetar. Enrutamiento estatico. APs con nombre y contrasena segura. IP tambien a los switches.",
+    "variables": { "MN": "RELLENA", "NC": "RELLENA" }
+  },
+
+  "2_routers": {
+    "R1": "Router0", "R2": "Router1", "R3": "Router2"
+  },
+
+  "3_grupos_LAN": {
+    "GRUPO-1": {
+      "red": "RELLENA a.b.c.d/nn",
+      "router": { "R1 GigabitEthernet0/0/0": "RELLENA IP/prefijo" },
+      "switches": {
+        "S1 (Switch1, principal)": { "ip": "RELLENA", "gateway": "RELLENA" },
+        "S2 (Switch2, cuelga de S1)": { "ip": "RELLENA", "gateway": "RELLENA" }
+      },
+      "hosts": {
+        "PC0 (en S2)": { "ip": "RELLENA", "gateway": "RELLENA" },
+        "PC1 (en S2)": { "ip": "RELLENA", "gateway": "RELLENA" },
+        "PC2 (en S1)": { "ip": "RELLENA", "gateway": "RELLENA" }
+      }
+    },
+    "GRUPO-2": {
+      "red": "RELLENA a.b.c.d/nn",
+      "router": { "R1 GigabitEthernet0/0/1": "RELLENA IP/prefijo" },
+      "switches": {
+        "S3 (Switch0)": { "ip": "RELLENA", "gateway": "RELLENA" }
+      },
+      "hosts": {
+        "PC3": { "ip": "RELLENA", "gateway": "RELLENA" },
+        "PC4": { "ip": "RELLENA", "gateway": "RELLENA" }
+      }
+    },
+    "GRUPO-3": {
+      "red": "192.168.NC.0/24  (viene en el enunciado, no se pide)",
+      "router": { "R2 GigabitEthernet0/0/0": "RELLENA IP/prefijo" },
+      "switches": {
+        "S4 (Switch3)": { "ip": "RELLENA", "gateway": "RELLENA" }
+      },
+      "access_points": {
+        "AP1 (Access Point0)": { "ssid": "RELLENA", "clave_wpa2": "RELLENA", "clientes": ["PC6", "PC7"] }
+      },
+      "hosts": {
+        "PC5 (cable, en S4)": { "ip": "RELLENA", "gateway": "RELLENA" },
+        "PC6 (wifi, AP1)": { "ip": "RELLENA", "gateway": "RELLENA" },
+        "PC7 (wifi, AP1)": { "ip": "RELLENA", "gateway": "RELLENA" }
+      }
+    },
+    "GRUPO-4": {
+      "red": "RELLENA a.b.c.d/nn",
+      "router": { "R3 GigabitEthernet0/0/0": "RELLENA IP/prefijo" },
+      "switches": {
+        "S5 (Switch4)": { "ip": "RELLENA", "gateway": "RELLENA" }
+      },
+      "access_points": {
+        "AP2 (Access Point1)": { "ssid": "RELLENA", "clave_wpa2": "RELLENA", "clientes": ["Laptop0", "Laptop1", "Laptop2"] }
+      },
+      "hosts": {
+        "Laptop0 (wifi, AP2)": { "ip": "RELLENA", "gateway": "RELLENA" },
+        "Laptop1 (wifi, AP2)": { "ip": "RELLENA", "gateway": "RELLENA" },
+        "Laptop2 (wifi, AP2)": { "ip": "RELLENA", "gateway": "RELLENA" }
+      }
+    }
+  },
+
+  "4_enlaces_entre_routers": {
+    "_nota": "Solo se pide la IP si el enunciado NO da la red. Aqui las dos vienen etiquetadas, asi que el agente no pregunta nada.",
+    "WAN-1 (R1 S0/1/0 <-> R2 S0/1/0)": { "red": "10.0.0.0/30 (enunciado)", "IPs": "AUTO: R1 = 10.0.0.1 (DCE), R2 = 10.0.0.2" },
+    "WAN-2 (R2 S0/1/1 <-> R3 S0/1/0)": { "red": "10.0.0.4/30 (enunciado)", "IPs": "AUTO: R2 = 10.0.0.5 (DCE), R3 = 10.0.0.6" }
+  },
+
+  "5_enrutamiento": "AUTO: rutas estaticas en R1, R2 y R3 hacia las redes de los GRUPOS y WAN que no tienen conectadas, calculadas a partir de los datos de 3 y 4. El alumno no escribe nada aqui.",
+
+  "6_etiquetas": {
+    "ya_en_el_lienzo": ["10.0.0.0/30", "10.0.0.4/30", "192.168.NC.0/24"],
+    "a_poner_por_el_agente": "Una etiqueta de red por cada GRUPO sin etiquetar (grupos 1, 2 y 4), con la red que escriba el alumno. Los alias S1, R1... quedan solo en esta plantilla."
+  }
+}
