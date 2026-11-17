@@ -35,6 +35,22 @@ VARS = {k: str(v).strip() for k, v in plan.get("variables", {}).items()}
 _empty = [k for k, v in VARS.items() if v == ""]
 if _empty:
     sys.exit(f"ERROR: variables sin rellenar en el plan: {_empty}. Las tiene que dar el alumno.")
+
+# Ninguna IP puede estar en dos dispositivos: eso no se puede aplicar, no es una opinión sobre el diseño.
+_ips, _repe = {}, []
+for _n, _c in plan.get("routers", {}).items():
+    for _i, _v in _c.get("interfaces", {}).items():
+        _ips.setdefault(str(ipaddress.ip_interface(_v).ip), []).append(f"{_n} {_i}")
+for _n, _c in plan.get("switches", {}).items():
+    _ips.setdefault(str(ipaddress.ip_interface(_c["ip"]).ip), []).append(f"{_n} VLAN1")
+for _n, _c in plan.get("hosts", {}).items():
+    _ips.setdefault(str(ipaddress.ip_interface(_c["ip"]).ip), []).append(_n)
+for _ip, _who in _ips.items():
+    if len(_who) > 1:
+        _repe.append(f"{_ip} -> {', '.join(_who)}")
+if _repe:
+    sys.exit("ERROR: IPs repetidas: " + "; ".join(_repe) + ". Un dispositivo no puede tener una IP que ya tiene otro.")
+
 tree = ET.parse(src, PARSER) if LXML else ET.parse(src)
 r = tree.getroot()
 devs = {d.find("ENGINE").findtext("NAME"): d for d in r.find("NETWORK/DEVICES").findall("DEVICE")}

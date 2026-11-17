@@ -8,11 +8,13 @@ los rangos de IPs de los hosts, qué clientes van a cada AP y qué red lleva cad
 
 Este script calcula solo lo que es aritmética o está escrito en el lienzo:
   1. la IP exacta de cada host dentro del rango que dio el alumno (de menor a mayor, sin pisar
-     gateway, switches ni APs);
+     gateway, switches ni APs y sin repetir ninguna IP de ningún dispositivo);
   2. las IPs de las interfaces serie a partir de la red /30 o /31 que ya está etiquetada en el lienzo;
   3. las rutas estáticas de cada router (camino más corto por los enlaces entre routers);
   4. el SSID y la clave WPA2 de los APs que el alumno no haya escrito;
   5. junto a qué dispositivos va cada etiqueta de red nueva (router + switch del grupo).
+
+Si el propio diseño del alumno repite una IP, se detiene: eso no se puede aplicar y no se cambia.
 
 Formato del diseño: ../examples/plan_formato.json (sección "grupos"). Las claves de un plan ya
 completo (routers, switches, hosts...) se respetan tal cual: aquí solo se rellena lo que falte.
@@ -120,8 +122,18 @@ SWAP = plan.setdefault("swap_to_wireless", [])
 LABELS = plan.setdefault("net_labels", [])
 
 log = []
-assigned = {}          # red -> set de IPs ya usadas
+USED = {}              # IP -> dispositivo que la tiene. Ninguna IP puede repetirse.
 router_nets = {}       # router -> set de redes conectadas
+
+
+def reservar(ip, quien):
+    """Anota la IP como usada. Si ya la tenía otro dispositivo, el diseño no se puede aplicar."""
+    ip = ipaddress.ip_address(str(ip).split("/")[0])
+    if ip in USED:
+        fail(f"la IP {ip} está repetida: ya la usa {USED[ip]} y también {quien}. "
+             f"Ningún dispositivo puede llevar una IP que ya tiene otro.")
+    USED[ip] = quien
+    return ip
 grupos = diseno.get("grupos", {})
 
 if not grupos:
@@ -133,14 +145,13 @@ for gname, g in grupos.items():
     red = net(g["red"])
     pref = red.prefixlen
     gw = ipaddress.ip_address(str(g["gateway"]))
-    used = assigned.setdefault(red, set())
-    used.add(gw)
 
     # --- router del grupo
     rname, rif = g.get("router"), g.get("interfaz")
     if rname and rif:
         need(rname)
         R.setdefault(rname, {}).setdefault("interfaces", {})[rif] = f"{gw}/{pref}"
+        reservar(gw, f"{rname} {rif}")
         # red realmente conectada = la de la IP configurada (no se corrige nada: es la del alumno)
         router_nets.setdefault(rname, set()).add(ipaddress.ip_interface(f"{gw}/{pref}").network)
     elif rname:
@@ -151,7 +162,7 @@ for gname, g in grupos.items():
     for sname, sip in (g.get("switches") or {}).items():
         need(sname)
         S.setdefault(sname, {}).update({"ip": f"{sip}/{pref}", "gateway": str(gw)})
-        used.add(ipaddress.ip_address(str(sip)))
+        reservar(sip, f"{sname} VLAN1")
         sw_names.append(sname)
 
     # --- APs del grupo
@@ -176,8 +187,11 @@ for gname, g in grupos.items():
     hnames = g.get("hosts") or []
     rango = g.get("rango")
     given = [H.get(n, {}).get("ip") for n in hnames]
+    for n, ip in zip(hnames, given):
+        if ip:
+            reservar(ip, n)
     if rango in (None, "", "libres") or (isinstance(rango, str) and rango.lower() in ("libres", "auto")):
-        cand = [a for a in usable(red) if a not in used]
+        cand = [a for a in usable(red) if a not in USED]
     else:
         if not isinstance(rango, (list, tuple)) or len(rango) != 2:
             fail(f"{gname}: 'rango' tiene que ser [inicio, fin] o \"libres\"")
@@ -191,7 +205,7 @@ for gname, g in grupos.items():
         a, b = sorted((extremo(rango[0]), extremo(rango[1])))
         lim = set(usable(red))
         cand = [ipaddress.ip_address(x) for x in range(a, b + 1)
-                if ipaddress.ip_address(x) in lim and ipaddress.ip_address(x) not in used]
+                if ipaddress.ip_address(x) in lim and ipaddress.ip_address(x) not in USED]
     # los que ya traen IP escrita se respetan y liberan del rango
     for n, ip in zip(hnames, given):
         if ip:
@@ -201,7 +215,7 @@ for gname, g in grupos.items():
         fail(f"{gname}: el rango {rango} no tiene {len(falta)} IPs libres para {falta}")
     for n, ip in zip(falta, cand):
         H[n] = {"ip": f"{ip}/{pref}", "gateway": str(gw)}
-        used.add(ip)
+        reservar(ip, n)
     for n in hnames:
         H.setdefault(n, {})
         H[n].setdefault("gateway", str(gw))
@@ -252,6 +266,8 @@ for l in serial:
     asig = {first: ips[0], second: ips[1]}
     R.setdefault(a, {}).setdefault("interfaces", {})[pa] = f"{asig[a]}/{rn.prefixlen}"
     R.setdefault(b, {}).setdefault("interfaces", {})[pb] = f"{asig[b]}/{rn.prefixlen}"
+    reservar(asig[a], f"{a} {pa}")
+    reservar(asig[b], f"{b} {pb}")
     router_nets.setdefault(a, set()).add(ipaddress.ip_interface(f"{asig[a]}/{rn.prefixlen}").network)
     router_nets.setdefault(b, set()).add(ipaddress.ip_interface(f"{asig[b]}/{rn.prefixlen}").network)
     edges.setdefault(a, []).append((b, rn, asig[a], asig[b]))

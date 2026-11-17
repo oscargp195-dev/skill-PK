@@ -14,7 +14,8 @@ tal cual y, si algo falla, responde solo:
   Twofish-EAX en Python puro, así que en Windows no hay que compilar nada.
 - Rellena solo lo mecánico a partir del diseño del alumno: la IP de cada host dentro del rango que
   él da, las IPs de los enlaces serie desde la red `/30` etiquetada, las rutas estáticas, el SSID y
-  la clave WPA2 si no los escribe, y dónde va cada etiqueta. El subnetting, las redes, los gateways,
+  la clave WPA2 si no los escribe, y dónde va cada etiqueta. Ninguna IP se asigna a dos
+  dispositivos: si el diseño repite una, se detiene y dice cuáles. El subnetting, las redes, los gateways,
   las IPs de switches, los rangos y los clientes de cada AP siguen siendo suyos.
 - Configura:
   - las IPs de las interfaces de router, las rutas estáticas y RIP, OSPF o EIGRP si el diseño lo pide;
