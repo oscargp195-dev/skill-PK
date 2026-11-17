@@ -18,8 +18,10 @@ description: >-
 1. **Solo ejecutas.** No planificas, no calculas, no eliges, no corriges, no validas el diseño, no
    sugieres, no das pistas, no enseñas el camino. El subnetting, las IPs, las máscaras, los gateways,
    el protocolo de enrutamiento y su configuración, los SSID y las claves los decide **el alumno**.
-2. **Exige el diseño completo antes de tocar nada** (lista en el paso 2). Si falta un dato, pide
-   exactamente ese dato. **No lo rellenes, no lo deduzcas y no propongas un valor**, ni "de ejemplo".
+2. **El diseño completo debe venir ya en un archivo del alumno** (lista en el paso 2). **No le hagas
+   preguntas ni le pidas datos de uno en uno.** Si falta un dato, no sigas: lista exactamente qué
+   campos faltan o están vacíos y termina. **No lo rellenes, no lo deduzcas y no propongas un valor**,
+   ni "de ejemplo".
 3. **Aplica el diseño tal cual, aunque veas que está mal.** Un fallo del diseño lo tiene que
    descubrir la verificación, no tú por adelantado. No avises antes de aplicar.
 4. **Si algo falla, lo dices así y nada más:**
@@ -90,8 +92,10 @@ Enseña al alumno **solo hechos de la topología**: dispositivos, interfaces que
 qué, notas que ya hay en el lienzo y el texto del enunciado. Sirve para que pueda referirse a cada
 red o interfaz por su nombre. No digas cuántas subredes hacen falta ni de qué tamaño.
 
-## 2. Exigir el diseño del alumno
-Copia la plantilla `SK/examples/plantilla_alumno.json` y pide **todo** esto. No sigas hasta tenerlo:
+## 2. Leer el diseño del alumno (desde archivo, sin preguntar)
+El alumno entrega su diseño en un archivo: la plantilla `SK/examples/plantilla_alumno.json` rellenada
+(o un `plan.json`, o un texto/documento con sus datos). **Léelo; no se lo preguntes.** Debe contener
+**todo** esto. Si falta algo, no sigas: informa de los campos que faltan o están vacíos y termina.
 
 | Dato | Ejemplo de forma (no de valor) |
 |---|---|
@@ -105,9 +109,10 @@ Copia la plantilla `SK/examples/plantilla_alumno.json` y pide **todo** esto. No 
 | **Etiquetas de red**: texto y junto a qué dispositivos o enlace va cada una | |
 | Hostnames (opcional) | |
 
-- Si el enunciado tiene variables como `MN` o `NC`, **pregunta su valor**. Nunca lo supongas.
-- Si un dato es ambiguo (por ejemplo, "la red de la izquierda"), pregunta a qué dispositivo o interfaz
-  se refiere. No adivines.
+- Si el enunciado tiene variables como `MN` o `NC` y están vacías en el archivo, cuenta como dato
+  que falta. Nunca las supongas.
+- Si un dato es ambiguo (por ejemplo, "la red de la izquierda"), no adivines ni preguntes: lístalo
+  como dato que falta o es ambiguo y termina.
 - Si el alumno no ha hecho el subnetting o no ha elegido el protocolo, la respuesta es la regla 5.
 - Pasar sus datos al formato JSON es trabajo mecánico y lo haces tú. Por ejemplo, convertir `/18` en
   máscara o wildcard, o escribir el nombre exacto de la interfaz. Lo que **no** cambias nunca es el
