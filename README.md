@@ -12,8 +12,12 @@ tal cual y, si algo falla, responde solo:
 ## Qué hace
 - Descifra y vuelve a cifrar `.pka` y `.pkt` de Packet Tracer 7 o superior sin tener PT abierto. Usa
   Twofish-EAX en Python puro, así que en Windows no hay que compilar nada.
+- Rellena solo lo mecánico a partir del diseño del alumno: la IP de cada host dentro del rango que
+  él da, las IPs de los enlaces serie desde la red `/30` etiquetada, las rutas estáticas, el SSID y
+  la clave WPA2 si no los escribe, y dónde va cada etiqueta. El subnetting, las redes, los gateways,
+  las IPs de switches, los rangos y los clientes de cada AP siguen siendo suyos.
 - Configura:
-  - las IPs de las interfaces de router, las rutas estáticas y RIP, OSPF o EIGRP;
+  - las IPs de las interfaces de router, las rutas estáticas y RIP, OSPF o EIGRP si el diseño lo pide;
   - la VLAN1 y el default-gateway de los switches;
   - la IP y el gateway de los hosts;
   - WPA2-PSK en los APs y en sus clientes, cambiando las tarjetas de cable por inalámbricas cuando
@@ -51,6 +55,7 @@ reference/xml-format.md       formato XML de PT y trampas conocidas
 scripts/ptcrypt.py            .pka/.pkt <-> XML
 scripts/pka_split.py          separa y une la red del alumno
 scripts/pt_summary.py         resumen de la topología y el enunciado
+scripts/pt_plan_auto.py       rellena lo mecánico (IPs de hosts, serie, rutas, Wi-Fi, etiquetas)
 scripts/pt_apply_plan.py      aplica el diseño del alumno
 scripts/check_setup.py        comprueba las dependencias
 scripts/setup_windows.ps1     instala las dependencias (con permiso)

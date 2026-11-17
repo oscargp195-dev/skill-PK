@@ -15,13 +15,17 @@ description: >-
 
 ## ⛔ Reglas que no se rompen nunca
 
-1. **Solo ejecutas.** No planificas, no calculas, no eliges, no corriges, no validas el diseño, no
-   sugieres, no das pistas, no enseñas el camino. El subnetting, las IPs, las máscaras, los gateways,
-   el protocolo de enrutamiento y su configuración, los SSID y las claves los decide **el alumno**.
-2. **El diseño completo debe venir ya en un archivo del alumno** (lista en el paso 2). **No le hagas
-   preguntas ni le pidas datos de uno en uno.** Si falta un dato, no sigas: lista exactamente qué
-   campos faltan o están vacíos y termina. **No lo rellenes, no lo deduzcas y no propongas un valor**,
-   ni "de ejemplo".
+1. **Tú ejecutas y haces lo mecánico; el alumno diseña.** El subnetting, las redes y sus prefijos, los
+   gateways, las IPs de switches y APs, los rangos de IPs de los hosts, qué clientes van a cada AP y
+   qué red lleva cada etiqueta los decide **el alumno**. No los cambias, no los corriges y no los
+   validas. Lo que sí calculas tú (paso 3) es la aritmética que no es diseño: la IP concreta de cada
+   host dentro del rango que él dio, las IPs de los enlaces serie a partir de la red ya etiquetada, las
+   rutas estáticas, el SSID y la clave cuando no los escriba, y junto a qué dispositivos va cada
+   etiqueta.
+2. **El diseño del alumno debe venir ya en un archivo** (lista en el paso 2). **No le hagas preguntas
+   ni le pidas datos de uno en uno.** Si falta un dato de los que decide él, no sigas: lista exactamente
+   qué campos faltan o están vacíos y termina. **No lo rellenes, no lo deduzcas y no propongas un
+   valor**, ni "de ejemplo". Lo mecánico no se pide: se calcula.
 3. **Aplica el diseño tal cual, aunque veas que está mal.** Un fallo del diseño lo tiene que
    descubrir la verificación, no tú por adelantado. No avises antes de aplicar.
 4. **Si algo falla, lo dices así y nada más:**
@@ -94,31 +98,50 @@ red o interfaz por su nombre. No digas cuántas subredes hacen falta ni de qué 
 
 ## 2. Leer el diseño del alumno (desde archivo, sin preguntar)
 El alumno entrega su diseño en un archivo: la plantilla `SK/examples/plantilla_alumno.json` rellenada
-(o un `plan.json`, o un texto/documento con sus datos). **Léelo; no se lo preguntes.** Debe contener
-**todo** esto. Si falta algo, no sigas: informa de los campos que faltan o están vacíos y termina.
+(o un `plan.json`, o un texto/documento con sus datos). **Léelo; no se lo preguntes.** Lo que decide él
+y debe contener el archivo es **solo** esto. Si falta algo, no sigas: informa de los campos que faltan
+o están vacíos y termina.
 
-| Dato | Ejemplo de forma (no de valor) |
+| Dato (lo decide el alumno) | Ejemplo de forma (no de valor) |
 |---|---|
-| **Variables del enunciado** (`MN`, `NC`…). Van **vacías** en la plantilla y las rellena el alumno | `"MN": ""`, `"NC": ""` |
-| **Redes**: dirección/prefijo de cada red y a qué segmento corresponde (subnetting hecho por él) | `a.b.c.d/nn` → LAN de Router0 G0/0/0 |
-| **Interfaces de router**: IP/prefijo de cada una | `Router0 GigabitEthernet0/0/0 = a.b.c.d/nn` |
-| **Switches**: IP/prefijo en VLAN1 y default-gateway | |
-| **Hosts**: IP/prefijo y gateway de cada uno | |
-| **Enrutamiento**: protocolo y configuración completa | Estáticas: red destino + siguiente salto o interfaz de salida. RIP: versión, redes, `no auto-summary` sí o no. OSPF: proceso, redes con wildcard y área. EIGRP: AS y redes. |
-| **Wi-Fi**: SSID y clave WPA2 de cada AP, y qué clientes van a cada AP | |
-| **Etiquetas de red**: texto y junto a qué dispositivos o enlace va cada una | |
-| Hostnames (opcional) | |
+| **Variables del enunciado** (`MN`, `NC`…) | `"MN": "6"` |
+| **Grupos**: una LAN por cada interfaz de router. Red con prefijo, gateway y a qué router/interfaz va | `"G1": {"red": "a.b.c.d/nn", "gateway": "…", "router": "Router0", "interfaz": "GigabitEthernet0/0/0"}` |
+| **Switches**: IP de cada uno (VLAN1), dentro de su grupo | `"switches": {"Switch1": "…"}` |
+| **Hosts**: qué equipos van en cada grupo y **el rango de IPs** que les asigna | `"hosts": ["PC0","PC1"], "rango": [".2",".6"]` o `"rango": "libres"` |
+| **Wi-Fi**: qué clientes van a cada AP | `"ap": "Access Point0", "clientes_wifi": ["PC6","PC7"]` |
+| **Etiquetas de red**: texto o red de cada etiqueta nueva | `"etiqueta": "a.b.c.d/nn"` |
+| Hostnames (opcional) y SSID/clave si los quiere fijar él | |
 
 - Si el enunciado tiene variables como `MN` o `NC` y están vacías en el archivo, cuenta como dato
   que falta. Nunca las supongas.
 - Si un dato es ambiguo (por ejemplo, "la red de la izquierda"), no adivines ni preguntes: lístalo
   como dato que falta o es ambiguo y termina.
-- Si el alumno no ha hecho el subnetting o no ha elegido el protocolo, la respuesta es la regla 5.
-- Pasar sus datos al formato JSON es trabajo mecánico y lo haces tú. Por ejemplo, convertir `/18` en
-  máscara o wildcard, o escribir el nombre exacto de la interfaz. Lo que **no** cambias nunca es el
-  valor. El formato completo está en `SK/examples/plan_formato.json`.
+- Si el alumno no ha hecho el subnetting o no ha elegido las redes, la respuesta es la regla 5.
+- Pasar sus datos al formato JSON es trabajo mecánico y lo haces tú. Por ejemplo, escribir el nombre
+  exacto de la interfaz. Lo que **no** cambias nunca es el valor. El formato completo está en
+  `SK/examples/plan_formato.json`.
+- **No le pidas** IPs de hosts una a una, IPs de los enlaces serie, rutas estáticas, SSID, claves ni
+  dónde va cada etiqueta: eso lo calcula el paso 3.
 
-## 3. Aplicar y empaquetar
+## 3. Rellenar lo mecánico (sin preguntar nada)
+```
+python SK/scripts/pt_plan_auto.py red.xml diseno.json plan.json
+```
+Lee el diseño y la red del `.pka`, y escribe el `plan.json` que se aplica después. Rellena, con reglas
+fijas y sin tocar ninguna decisión del alumno:
+- **IP de cada host**: recorre el rango que dio él de menor a mayor, salta las que ya usan gateway,
+  switches y APs, y asigna en el orden en que él lista los equipos del grupo.
+- **IPs de los enlaces serie**: toma la red `/30` o `/31` de la etiqueta que ya está en el lienzo; el
+  router cuyo nombre va primero se queda la dirección baja (`.1`) y el otro la siguiente.
+- **Rutas estáticas**: camino más corto por los enlaces entre routers, con red destino y siguiente salto.
+- **Wi-Fi**: si no dio SSID, `LAB-AP<n>`; si no dio clave, 12 caracteres al azar con mayúscula,
+  minúscula y dígito (WPA2-PSK). Pasa a inalámbricos los equipos que estén a cable.
+- **Etiquetas**: coloca cada una junto al router y el switch principal de su grupo.
+
+Comprueba el resumen que imprime y sigue. Si un dato del alumno es incorrecto, **no lo corrijas**: se
+aplica igual y lo descubre la verificación.
+
+## 4. Aplicar y empaquetar
 ```
 python SK/scripts/pt_apply_plan.py red.xml plan.json red_new.xml
 python SK/scripts/pka_split.py merge full.xml red_new.xml full_new.xml
@@ -136,7 +159,7 @@ python SK/scripts/pt_summary.py chk.xml
   copiado bien sus datos. Si el error es tuyo, corrígelo: eso no es corregir al alumno.
 - Guarda `<nombre>_configurado.pka` junto al original y comprueba el tamaño con `ls` o `dir`.
 
-## 4. Verificar con pings (MCP packet-tracer)
+## 5. Verificar con pings (MCP packet-tracer)
 1. Ejecuta `pt_bridge_status`. Si PT no está conectado, pide al alumno que abra PT y
    **Extensions → MCP BUILDER**. No lances PT tú.
 2. `pt_open_project` **solo acepta `.pkt`**. Copia el `.pka` configurado a la carpeta temporal con
@@ -161,7 +184,7 @@ python SK/scripts/pt_summary.py chk.xml
    **No cambies nada en PT.**
 5. No digas que algo funciona si no has visto el ping responder.
 
-## 5. Informe al alumno (en español)
+## 6. Informe al alumno (en español)
 - **Lo que se ha aplicado**: una tabla con sus propios datos (red, interfaces, rutas o protocolo,
   switches, hosts, SSID) y la ruta del `.pka` configurado.
 - **Pings OK**: la lista.
@@ -169,8 +192,8 @@ python SK/scripts/pt_summary.py chk.xml
   cómo arreglarlo.
 - Si no hay MCP, dale la lista exacta de pings para que los haga él (PC → Desktop → Command Prompt).
 
-Cuando el alumno mande un diseño corregido, vuelve a aplicarlo **desde el archivo original** (paso 3)
-y verifica otra vez (paso 4).
+Cuando el alumno mande un diseño corregido, vuelve a aplicarlo **desde el archivo original** (paso 4)
+y verifica otra vez (paso 5).
 
 ## Trampas técnicas conocidas (lo mecánico sí lo resuelves tú)
 - Solo se edita el 1er `<PACKETTRACER5>`; el resto del archivo se copia byte a byte (`pka_split`).
@@ -184,6 +207,10 @@ y verifica otra vez (paso 4).
   a mano (pestaña Physical, WPC300N o WMP300N).
 - El MCP no puede configurar WPA en los clientes (solo desde la interfaz gráfica); por XML sí. No
   configures el Wi-Fi por MCP.
+- `pt_plan_auto.py` **no valida** el diseño: si dos redes se solapan o un gateway no es de su red, lo
+  aplica igual. Lo que falle lo destapan Packet Tracer y los pings, no tú antes de aplicar.
+- El `.pka` no guarda IP en los APs (`AccessPoint-PT`): si el alumno asigna IP a un AP, no hay dónde
+  ponerla. De un AP solo se configuran SSID y clave.
 - Cifrado: `ptcrypt.py` usa la extensión C de Twofish si la hay (Linux) y, si no, `lib/twofish_py.py`
   en Python puro (Windows; tarda unos 3 s por archivo).
 - Detalle del formato XML: [reference/xml-format.md](reference/xml-format.md).

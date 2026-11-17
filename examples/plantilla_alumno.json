@@ -1,20 +1,19 @@
 {
-  "_LEEME": "Plantilla del DISEÑO DEL ALUMNO. Todo lo rellena el alumno; el agente solo lo copia aquí. Si el enunciado no usa MN o NC, borra esa variable. Formato completo: plan_formato.json",
+  "_LEEME": "Plantilla del DISEÑO DEL ALUMNO. Rellena solo lo que decides tú: red/prefijo y gateway de cada grupo, IP de cada switch, qué equipos van en cada grupo con su rango de IPs, qué clientes van a cada AP y el texto de cada etiqueta. El agente calcula solo la IP de cada host dentro del rango, las IPs de los enlaces serie, las rutas estáticas, el SSID y la clave si no los pones, y dónde va cada etiqueta. Formato completo: plan_formato.json",
   "variables": {
     "MN": "",
     "NC": ""
   },
-  "redes_del_alumno": {
-    "_nota": "Solo informativo (no lo usa el script): red/prefijo -> qué segmento es, tal como lo dice el alumno"
-  },
-  "routers": {},
-  "switches": {},
-  "hosts": {},
-  "swap_to_wireless": [],
-  "access_points": {},
-  "wireless_clients": {},
-  "rename_notes": {},
-  "net_labels": [],
-  "notes": [],
-  "auto_labels": false
+  "grupos": {
+    "G1": {
+      "red": "",
+      "gateway": "",
+      "router": "",
+      "interfaz": "",
+      "switches": {},
+      "hosts": [],
+      "rango": [],
+      "etiqueta": ""
+    }
+  }
 }

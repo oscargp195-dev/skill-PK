@@ -1,17 +1,43 @@
 {
   "_LEEME": "SOLO muestra el FORMATO de cada campo. Los valores son inventados y no corresponden a ninguna práctica. Los nombres de dispositivo/interfaz deben ser exactamente los de pt_summary.py. Prefijos en CIDR.",
-  "variables": {"MN": "", "NC": ""},
-  "routers": {
-    "Router0": {
-      "hostname": "R0",
-      "interfaces": {
-        "GigabitEthernet0/0/0": "10.10.1.1/24",
-        "Serial0/1/0": "10.99.0.1/30"
-      },
-      "routes": [["10.10.2.0/24", "10.99.0.2"], ["0.0.0.0/0", "Serial0/1/0"]]
+  "_QUIEN_RELLENA": "El ALUMNO decide: red/prefijo, gateway, IPs de switches, qué equipos van en cada grupo con su rango de IPs, clientes de cada AP y texto de cada etiqueta. El AGENTE calcula con pt_plan_auto.py: IP de cada host dentro del rango, IPs de los enlaces serie desde la etiqueta /30, rutas estáticas, SSID/clave si no vienen y colocación de las etiquetas.",
+
+  "variables": {"MN": "6", "NC": "7"},
+
+  "grupos": {
+    "G1": {
+      "red": "10.10.1.0/24",
+      "gateway": "10.10.1.1",
+      "router": "Router0",
+      "interfaz": "GigabitEthernet0/0/0",
+      "switches": {"Switch0": "10.10.1.2"},
+      "hosts": ["PC0", "PC1"],
+      "rango": [".10", ".20"],
+      "etiqueta": "10.10.1.0/24"
     },
-    "Router1": {
-      "interfaces": {"GigabitEthernet0/0/0": "10.10.2.1/24", "Serial0/1/0": "10.99.0.2/30"},
+    "G2": {
+      "red": "10.10.2.0/24",
+      "gateway": "10.10.2.1",
+      "router": "Router1",
+      "interfaz": "GigabitEthernet0/0/0",
+      "switches": {"Switch1": "10.10.2.2"},
+      "hosts": ["PC2", "PC3", "PC4"],
+      "rango": "libres",
+      "ap": "Access Point0",
+      "clientes_wifi": ["PC3", "PC4"],
+      "etiqueta": "10.10.2.0/24"
+    }
+  },
+
+  "wan": [
+    {"routers": ["Router0", "Router1"], "red": "10.99.0.0/30"}
+  ],
+
+  "_opcional_avanzado": "Lo de abajo solo si el alumno lo escribe expresamente en su diseño; si no, lo genera pt_plan_auto.py y no hay que ponerlo.",
+  "routers": {
+    "Router2": {
+      "hostname": "R2",
+      "interfaces": {"GigabitEthernet0/0/0": "10.10.4.1/24"},
       "ospf": {
         "process": 1,
         "router_id": "1.1.1.1",
@@ -19,33 +45,18 @@
         "networks": ["10.10.2.0/24", ["10.99.0.0", "0.0.0.3", 0], {"net": "10.10.3.0/24", "area": 1}]
       }
     },
-    "Router2": {
-      "interfaces": {"GigabitEthernet0/0/0": "10.10.4.1/24"},
-      "rip": {"version": 2, "networks": ["10.0.0.0"], "no_auto_summary": true, "passive": []}
-    },
     "Router3": {
       "interfaces": {"GigabitEthernet0/0/0": "10.10.5.1/24"},
-      "eigrp": {"as": 100, "networks": ["10.10.5.0/24", ["10.99.0.4", "0.0.0.3"]], "no_auto_summary": true},
+      "rip": {"version": 2, "networks": ["10.0.0.0"], "no_auto_summary": true, "passive": []}
+    },
+    "Router4": {
+      "interfaces": {"GigabitEthernet0/0/0": "10.10.6.1/24"},
+      "eigrp": {"as": 100, "networks": ["10.10.6.0/24", ["10.99.0.4", "0.0.0.3"]], "no_auto_summary": true},
       "extra_config": ["ip route 10.10.9.0 255.255.255.0 Null0"]
     }
   },
-  "switches": {
-    "Switch0": {"hostname": "SW0", "ip": "10.10.1.2/24", "gateway": "10.10.1.1"}
-  },
-  "hosts": {
-    "PC0": {"ip": "10.10.1.10/24", "gateway": "10.10.1.1"},
-    "Laptop0": {"ip": "10.10.2.10/24", "gateway": "10.10.2.1"}
-  },
-  "swap_to_wireless": ["Laptop0"],
-  "access_points": {
-    "Access Point0": {"ssid": "SSID_DEL_ALUMNO", "key": "ClaveDelAlumno"}
-  },
-  "wireless_clients": {"Laptop0": "Access Point0"},
+
+  "_LO_QUE_ESCRIBE_EL_AGENTE": "pt_plan_auto.py rellena routers.interfaces, routers.routes, switches, hosts, access_points.ssid/key, wireless_clients, swap_to_wireless y net_labels. No hace falta escribirlos a mano; si vienen ya escritos, se respetan.",
   "rename_notes": {"texto exacto de una nota existente": "texto nuevo que diga el alumno"},
-  "net_labels": [
-    {"text": "10.10.1.0/24", "near": ["Router0", "Switch0"]},
-    {"text": "10.10.2.0/24", "near": ["Switch0"], "dx": 45, "dy": 0}
-  ],
-  "notes": [[120, 105, "10.10.4.0/24"]],
   "auto_labels": false
 }
