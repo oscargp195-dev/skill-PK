@@ -94,8 +94,14 @@ fijas:
   y dice qué dos dispositivos la comparten; no la cambia. `pt_apply_plan.py` vuelve a comprobarlo
   antes de escribir nada.
 
-Comprueba el resumen que imprime y corrige lo que esté mal (solapes de redes, gateways fuera de su
-red, etc.) antes de aplicar.
+El script **avisa sin corregir** de estas incoherencias del diseño:
+- una «red» que no es la dirección de red de su prefijo (p. ej. `172.22.0.16/19` → `172.22.0.0/19`);
+- un gateway que no pertenece a su red (p. ej. `72.22.0.9` en `172.22.0.8/19`);
+- dos grupos cuyas redes se solapan (p. ej. tres LAN etiquetadas `/19`);
+- dos interfaces del mismo router en la misma subred.
+
+Si aparecen, enséñaselos al alumno y **pregunta si quiere aplicarlo tal cual**. No cambies el diseño
+por tu cuenta: si dice que sí, se aplica literalmente aunque la verificación vaya a fallar.
 
 ## 4. Aplicar y empaquetar
 ```
@@ -154,7 +160,10 @@ y verifica otra vez (paso 5).
   a mano (pestaña Physical, WPC300N o WMP300N).
 - El MCP no puede configurar WPA en los clientes (solo desde la interfaz gráfica); por XML sí. No
   configures el Wi-Fi por MCP.
-- `pt_plan_auto.py` no valida el diseño: revisa tú solapes de redes y gateways antes de aplicar.
+- `pt_plan_auto.py` avisa de solapes, gateways fuera de red y prefijos que no son dirección de red,
+  pero **no cambia el diseño**. Si el alumno confirma, se aplica igual y los pings dirán qué falla.
+  Varias LAN `/19` en el mismo bloque (`172.22.0.0/19`, `.8/19`, `.16/19`) son la misma red: PT puede
+  rechazar la segunda IP del router y los hosts creen que están en la misma LAN.
 - El `.pka` no guarda IP en los APs (`AccessPoint-PT`): si el alumno asigna IP a un AP, no hay dónde
   ponerla. De un AP solo se configuran SSID y clave.
 - Cifrado: `ptcrypt.py` usa la extensión C de Twofish si la hay (Linux) y, si no, `lib/twofish_py.py`

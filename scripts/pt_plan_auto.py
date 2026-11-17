@@ -122,8 +122,10 @@ SWAP = plan.setdefault("swap_to_wireless", [])
 LABELS = plan.setdefault("net_labels", [])
 
 log = []
+AVISOS = []            # cosas del diseño que no se corrigen, solo se avisan
 USED = {}              # IP -> dispositivo que la tiene. Ninguna IP puede repetirse.
 router_nets = {}       # router -> set de redes conectadas
+redes = []             # (grupo, red) para detectar solapes entre grupos
 
 
 def reservar(ip, quien):
@@ -145,6 +147,17 @@ for gname, g in grupos.items():
     red = net(g["red"])
     pref = red.prefixlen
     gw = ipaddress.ip_address(str(g["gateway"]))
+
+    # --- avisos del diseño (no se corrige nada: lo decide el alumno)
+    red_txt = str(g["red"]).strip()
+    if str(red) != red_txt:
+        AVISOS.append(f"{gname}: '{red_txt}' no es una dirección de red; se interpreta como {red}.")
+    if gw not in red:
+        AVISOS.append(f"{gname}: el gateway {gw} no pertenece a la red {red}.")
+    for otro, ored in redes:
+        if red.overlaps(ored):
+            AVISOS.append(f"{gname} ({red}) se solapa con {otro} ({ored}).")
+    redes.append((gname, red))
 
     # --- router del grupo
     rname, rif = g.get("router"), g.get("interfaz")
@@ -303,6 +316,16 @@ for rname in sorted(router_nets):
     if rutas:
         log.append(f"rutas {rname}: " + ", ".join(f"{d} via {g}" for d, g in rutas))
 
+# ---------------- aviso: dos interfaces del mismo router en la misma subred
+for rname, data in R.items():
+    vistas = {}
+    for iface, ip in (data.get("interfaces") or {}).items():
+        n = ipaddress.ip_interface(ip).network
+        if n in vistas:
+            AVISOS.append(f"{rname}: {iface} y {vistas[n]} están en la misma red {n}.")
+        else:
+            vistas[n] = iface
+
 # ---------------- Wi-Fi: SSID y clave si el alumno no los dio
 for i, (apname, ap) in enumerate(APS.items(), 1):
     ssid = (ap.get("ssid") or "").strip()
@@ -322,6 +345,10 @@ for i, (apname, ap) in enumerate(APS.items(), 1):
     log.append(f"AP {apname}: SSID {ssid}  clave {key}  clientes {ap.get('clientes', [])}")
 
 json.dump(plan, open(dst, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+if AVISOS:
+    print("AVISOS DEL DISEÑO (no se corrige nada):")
+    for a in AVISOS:
+        print("  - " + a)
 print("\n".join(log))
 print(f"OK -> {dst}")
 print("Revisa el plan y ejecuta pt_apply_plan.py. Si algo del diseño es incorrecto, NO se corrige: "

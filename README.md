@@ -3,9 +3,10 @@
 Una skill para agentes (Claude Code y compatibles) que **ejecuta el diseño del alumno** en una práctica
 de Packet Tracer (`.pka` / `.pkt`) y lo comprueba con pings reales.
 
-**Filosofía:** el agente no diseña, no corrige y no da pistas. El alumno hace el subnetting y decide
-las IPs, el enrutamiento (estático, RIP, OSPF o EIGRP), el Wi-Fi y las etiquetas. El agente lo aplica
-tal cual y, si algo falla, responde solo:
+**Filosofía:** el agente no diseña, no corrige por su cuenta y no da pistas. El alumno hace el
+subnetting y decide las IPs, el enrutamiento (estático, RIP, OSPF o EIGRP), el Wi-Fi y las etiquetas.
+El agente lo aplica tal cual; si detecta solapes, un gateway fuera de su red o dos interfaces del
+mismo router en la misma subred, lo avisa y pregunta antes de tocar nada. Si algo falla, responde solo:
 
 > **Has fallado en X porque Y. Busca cómo solucionarlo por ti mismo, si lo hago yo NADIE te querrá contratar a TI.**
 
@@ -17,6 +18,8 @@ tal cual y, si algo falla, responde solo:
   la clave WPA2 si no los escribe, y dónde va cada etiqueta. Ninguna IP se asigna a dos
   dispositivos: si el diseño repite una, se detiene y dice cuáles. El subnetting, las redes, los gateways,
   las IPs de switches, los rangos y los clientes de cada AP siguen siendo suyos.
+- Avisa (sin cambiar el diseño) de redes que se solapan, prefijos que no son dirección de red,
+  gateways fuera de su red y dos interfaces del mismo router en la misma subred.
 - Configura:
   - las IPs de las interfaces de router, las rutas estáticas y RIP, OSPF o EIGRP si el diseño lo pide;
   - la VLAN1 y el default-gateway de los switches;
